@@ -37,7 +37,7 @@
                 e.preventDefault();
             },
             leaveThumb(e) {
-                this.isDownThumb = true;
+                this.isDownThumb = false;
 
                 e.preventDefault();
             },
@@ -100,16 +100,18 @@
 
             document.addEventListener('mousemove', e => {
                 if (this.isDownThumb === true) {
-                    let widthLine = this.calcRangeWidth();
+                    let positionThumb;
+                    let bounds = this.$refs.rangeLine.getBoundingClientRect();
+                    let pageCoord = e.pageX;
+                    let x = pageCoord - bounds.left;
 
-                    if (this.position <= widthLine) {
-                        let positionThumb;
-                        let bounds = this.$refs.rangeLine.getBoundingClientRect();
-                        let pageCoord = e.pageX;
-                        let x = pageCoord - bounds.left;
-                        
-                        positionThumb = (x - 10) / widthLine;
+                    if (this.position < this.calcRangeWidth()) {  
+                        positionThumb = (x - 10) / this.calcRangeWidth();
                         positionThumb *= 100;
+
+                        if (positionThumb < 0) {
+                            positionThumb = 0;
+                        }
 
                         this.$emit("update:modelValue", Math.round(positionThumb));
 
@@ -118,15 +120,27 @@
                         if (positionThumb > 100) {
                             this.$emit("update:modelValue", 100);
                         }
+                        
+                        if (this.position <= 0) {
+                            this.position = 0;
+                            this.$emit("update:modelValue", 0);
+                        }
                     } else {
-                        this.isDownThumb = false;
-                        this.position = this.calcRangeWidth();
-                    }
+                        positionThumb = (x - 10) / this.calcRangeWidth();
+                        positionThumb *= 100;
 
-                    if (this.position <= 0) {
-                        this.isDownThumb = false;
-                        this.position = 0;
-                        this.$emit("update:modelValue", 0);
+                        if (positionThumb < 0) {
+                            positionThumb = 0;
+                        }
+
+                        this.$emit("update:modelValue", Math.round(positionThumb));
+
+                        if (positionThumb > 100) {
+                            this.$emit("update:modelValue", 100);
+                            this.position = this.calcRangeWidth();
+                        } else {
+                            this.position = this.calcRangeWidth() - (this.calcRangeWidth() * this.position / 100);
+                        }
                     }
                 }
 
@@ -135,33 +149,47 @@
 
             document.addEventListener('touchmove', e => {
                 if (this.isDownThumb === true) {
-                    let widthLine = this.calcRangeWidth();
+                    let positionThumb;
+                    let bounds = this.$refs.rangeLine.getBoundingClientRect();
+                    let pageCoord = e.touches[0].pageX;
+                    let x = pageCoord - bounds.left;
 
-                    if (this.position <= widthLine) {
-                        let positionThumb;
-                        let bounds = this.$refs.rangeLine.getBoundingClientRect();
-                        let pageCoord = e.touches[0].pageX;
-                        let x = pageCoord - bounds.left;
-
-                        positionThumb = x / widthLine;
+                    if (this.position < this.calcRangeWidth()) {  
+                        positionThumb = (x - 10) / this.calcRangeWidth();
                         positionThumb *= 100;
+
+                        if (positionThumb < 0) {
+                            positionThumb = 0;
+                        }
 
                         this.$emit("update:modelValue", Math.round(positionThumb));
 
-                        this.position = x;
+                        this.position = x - 10;
 
                         if (positionThumb > 100) {
                             this.$emit("update:modelValue", 100);
                         }
+                        
+                        if (this.position <= 0) {
+                            this.position = 0;
+                            this.$emit("update:modelValue", 0);
+                        }
                     } else {
-                        this.isDownThumb = false;
-                        this.position = this.calcRangeWidth();
-                    }
+                        positionThumb = (x - 10) / this.calcRangeWidth();
+                        positionThumb *= 100;
 
-                    if (this.position <= 0) {
-                        this.isDownThumb = false;
-                        this.position = 0;
-                        this.$emit("update:modelValue", 0);
+                        if (positionThumb < 0) {
+                            positionThumb = 0;
+                        }
+
+                        this.$emit("update:modelValue", Math.round(positionThumb));
+
+                        if (positionThumb > 100) {
+                            this.$emit("update:modelValue", 100);
+                            this.position = this.calcRangeWidth();
+                        } else {
+                            this.position = this.calcRangeWidth() - (this.calcRangeWidth() * this.position / 100);
+                        }
                     }
                 }
 
