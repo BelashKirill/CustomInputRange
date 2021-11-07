@@ -2,7 +2,7 @@
     <div class="wrap">
         <div class="cur-perc">{{modelValue}}%</div>
         <div class="range">
-            <div class="inner" ref="rangeLine" @touchmove="moveThumbM" @click="clickRangeArea">
+            <div class="inner" ref="rangeLine" @click="clickRangeArea">
                 <span class="thumb" :style="{'left': position + 'px'}" @mousedown="dragThumb" @mouseup="leaveThumb" @touchstart="dragThumb" @touchend="leaveThumb"></span>
             </div>
         </div>
@@ -41,12 +41,10 @@
 
                 e.preventDefault();
             },
-            moveThumbClick(x, e) {
+            moveThumbClick(x) {
                 this.position = (this.calcRangeWidth()) * x / 100;
 
-                this.$emit("update:modelValue", position);
-
-                e.preventDefault();
+                this.$emit("update:modelValue", x);
             },
             clickRangeArea(e) {
                 let bounds = this.$refs.rangeLine.getBoundingClientRect();
