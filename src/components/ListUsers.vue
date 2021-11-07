@@ -1,11 +1,11 @@
 <template>
-    <input class="form-control" list="datalistOptions" id="exampleDataList" placeholder="search..." v-model="search" @input="searchName(copyArr)">
+    <input class="form-control" list="datalistOptions" id="exampleDataList" placeholder="search..." v-model="search">
     <ul class="list-group list-group-flush group-flush">
-        <li class="list-group-item" v-for="(name) in jsonData" :key="name.id">
-            <span>{{name[0]}}</span>
+        <li class="list-group-item" v-for="(name) in filteredList" :key="name.id">
+            <span>{{name.username}}</span>
             <span>
-                <a :href="'/users/' + name[1]">Перейти</a>
-                <a href="#" @click="deleteItem(name)">Удалить</a>
+                <router-link :to="'/users/' + name.id">Перейти</router-link>
+                <span @click="deleteItem(name)">Удалить</span>
             </span>
         </li>
     </ul>
@@ -20,58 +20,52 @@ export default {
     name: 'ListUsers',
     data() {
         return {
-            jsonData: null,
-            search: null,
-            copyArr: null,
-            name: null
+            search: '',
+            users: [],
+            name: ''
         }
     },
-    methods: {
-        searchName(copyArr) {
-            let resultArr = [];
-            let pattern = new RegExp(this.search, "i");
-
-            for (let i = 0; i < this.copyArr.length; i++) {
-                if (pattern.test(copyArr[i])) {
-                    resultArr.push(copyArr[i]);
-                }
-            }
-
-            this.jsonData = resultArr;
+    computed: {
+        filteredList() {
+            return this.users.filter((item) => {
+                return item.username.toLowerCase().includes(this.search.toLowerCase())
+            })
         },
+    },
+    methods: {
         deleteItem(name) {
-            let getIndex = this.jsonData.indexOf(name);
-            let getIndexCopy = this.copyArr.indexOf(name);
-
-            this.jsonData.splice(getIndex, 1);
-            this.copyArr.splice(getIndexCopy, 1);
+            this.users = this.users.filter((item) => item.id !== name.id)
         },
         addItem() {
             if (this.name) {
-                if (this.jsonData.indexOf(this.name) === -1) {
-                    this.jsonData.push(this.name);
-                }
-
-                if (this.copyArr.indexOf(this.name) === -1) {
-                    this.copyArr.push(this.name);
+                if (!this.hasNewEl(this.name)) {
+                    this.users.push({
+                        id: this.getNewId(),
+                        username: this.name
+                    });
                 }
 
                 this.name = '';
             }
-        }
+        },
+        hasNewEl(newName) {
+            return this.users.find((item) => item.username === newName)
+        },
+        getNewId() {
+            const maxId = this.users.reduce((acc, val) => {
+                if (val.id > acc) {
+                    return val.id
+                }
+            }, 0);
+
+            return maxId + 1
+        },
     },
     mounted() {
         fetch('https://jsonplaceholder.typicode.com/users')
             .then(response => response.json())
             .then(users => {
-                let arrNames = [];
-
-                for (let user in users) {
-                    arrNames.push([users[user].username, users[user].id]);
-                }
-
-                this.jsonData = arrNames;
-                this.copyArr = arrNames;
+                this.users = users;
             });
     }
 }
@@ -86,9 +80,13 @@ export default {
             justify-content: space-between;
 
             span {
-                a {
-                    &:first-child {
-                        margin-right: 5px;
+                span {
+                    display: inline-block;
+
+                    &:last-child {
+                        margin-left: 5px;
+                        color: #ff4c4c;
+                        cursor: pointer;
                     }
                 }
             }

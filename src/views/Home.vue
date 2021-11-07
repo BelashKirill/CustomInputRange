@@ -2,7 +2,7 @@
     <div class="container">
       <div class="row">
         <div class="col-md-4">
-          <Range :startValue="40" :modelValue="value" @update:modelValue="value = $event" />
+          <Range v-model="value" />
         </div>
         <div class="col-md-4">
           <ListUsers />
@@ -19,7 +19,7 @@ export default {
   name: 'Home',
   data() {
     return {
-      value: 0
+      value: 50
     }
   },
   components: {

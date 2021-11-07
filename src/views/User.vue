@@ -1,6 +1,6 @@
 <template>
     <div>Страница пользователя с ID = {{ $route.params.id }}</div>
-    <a href="/">Назад</a>
+    <router-link :to="'/'">Назад</router-link>
 </template>
 
 <script>
